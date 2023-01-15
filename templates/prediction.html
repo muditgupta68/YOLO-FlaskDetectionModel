@@ -1,0 +1,39 @@
+{% extends "dashboard.html" %} {% block body %}
+<div class="container py-3">
+  <header class="text-center">
+    <h1>Prediction Playground</h1>
+    <p class="lead mb-3">
+      Here the outcome of the source you entered will be presented
+    </p>
+  </header>
+
+  <div class="row py-2">
+    <div class="col-lg-6 mx-auto">
+      <!-- Uploaded image area-->
+      {% if output %}
+      <p class="font-italic text-center">Image Detected! Result below...</p>
+      <div class="image-area mt-4">
+        <img
+          src="{{ url_for('static', filename='uploads/output_image.jpg') }}"
+          height="380"
+          width="570"
+          alt="previous"
+          title="Previous"
+        />
+      </div>
+      {% else %}
+      <p class="font-italic text-center">No Image rendered from source</p>
+      <div class="image-area mt-4">
+        <img
+          id="imageResult"
+          src="#"
+          alt=""
+          class="img-fluid rounded shadow-sm mx-auto d-block"
+        />
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

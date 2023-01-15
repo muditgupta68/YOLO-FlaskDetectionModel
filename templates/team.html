@@ -1,0 +1,184 @@
+{% extends "layout.html" %} {% block body %}
+
+<!-- Team-->
+<section class="page-section bg-light" id="team">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="section-heading text-uppercase margin_top">
+        Our Amazing Team
+      </h2>
+      <h3 class="section-subheading text-muted">
+        ❝ No one can whistle a symphony. It takes a whole orchestra to play it ❞
+      </h3>
+    </div>
+    <div class="row">
+      <div class="col-lg-3">
+        <div class="team-member">
+          <img
+            class="mx-auto rounded-circle"
+            src="{{url_for('static',filename='assets/img/team/ujjwal.jpg') }}"
+            alt="..."
+          />
+          <h4>Ujjwal Goel</h4>
+          <p class="text-muted">A2305219535</p>
+          <!-- <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand Twitter Profile"><i class="fab fa-twitter"></i></a>
+                              <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand Facebook Profile"><i class="fab fa-facebook-f"></i></a> -->
+          <!-- <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a> -->
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="team-member">
+          <img
+            class="mx-auto rounded-circle"
+            src="{{url_for('static',filename='assets/img/team/chinmay.jpeg') }}"
+            alt="..."
+          />
+          <h4>Chinmay Ganguly</h4>
+          <p class="text-muted">A2305219569</p>
+          <!-- <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand Twitter Profile"><i class="fab fa-twitter"></i></a>
+                              <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand Facebook Profile"><i class="fab fa-facebook-f"></i></a> -->
+          <!-- <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a> -->
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="team-member">
+          <img
+            class="mx-auto rounded-circle"
+            src="{{url_for('static',filename='assets/img/team/mudit.jpeg') }}"
+            alt="..."
+          />
+          <h4>Mudit Gupta</h4>
+          <p class="text-muted">A2305219568</p>
+          <!-- <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen Twitter Profile"><i class="fab fa-twitter"></i></a>
+                              <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen Facebook Profile"><i class="fab fa-facebook-f"></i></a> -->
+          <!-- <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a> -->
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="team-member">
+          <img
+            class="mx-auto rounded-circle"
+            src="{{url_for('static',filename='assets/img/team/arka.jpeg') }}"
+            alt="..."
+          />
+          <h4>Arka Kumar Saha</h4>
+          <p class="text-muted">A2305219550</p>
+          <!-- <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker Twitter Profile"><i class="fab fa-twitter"></i></a>
+                              <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker Facebook Profile"><i class="fab fa-facebook-f"></i></a> -->
+          <!-- <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a> -->
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center">
+        <p class="large text-muted">Group No. 138</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact-->
+<section class="page-section" id="contact">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="section-heading text-uppercase mb-5">Contact Us</h2>
+      <!-- <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3> -->
+    </div>
+    <form id="contactForm" action="/contact" method="POST">
+      <div class="row align-items-stretch mb-5">
+        <div class="col-md-6">
+          <div class="form-group">
+            <!-- Name input-->
+            {% if userData %}
+            <input
+              class="form-control"
+              id="name"
+              type="text"
+              placeholder="Your Name *"
+              name="name"
+              value={{userData.userName}}
+              required
+              autocomplete="my-field-name1"
+            />
+            {% else %}
+            <input
+              class="form-control"
+              id="name"
+              type="text"
+              placeholder="Your Name *"
+              name="name"
+              required
+              autocomplete="my-field-name1"
+            />
+            {% endif %}
+            <small class="text_white none"></small>
+          </div>
+          <div class="form-group">
+            <!-- Email address input-->
+            {% if userData %}
+            <input
+              class="form-control"
+              id="email"
+              type="email"
+              placeholder="Your Email *"
+              name="email"
+              value={{userData.userEmail}}
+              required
+              autocomplete="my-field-name2"
+            />
+            {% else %}
+            <input
+            class="form-control"
+            id="email"
+            type="email"
+            placeholder="Your Email *"
+            name="email"
+            required
+            autocomplete="my-field-name2"
+          />
+            {% endif %}
+
+
+            <small class="text_white none"></small>
+          </div>
+          <div class="form-group mb-md-0">
+            <!-- Phone number input-->
+            <input
+              class="form-control"
+              id="phone"
+              type="tel"
+              placeholder="Your Phone *"
+              name="phone"
+              max="12"
+              min="10"
+              required
+            />
+            <small class="text_white none"></small>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group form-group-textarea mb-md-0 bgWhite">
+            <textarea
+              class="form-control"
+              id="message"
+              placeholder="Your Message *"
+              name="message"
+              required
+            ></textarea>
+            <small class="text_white none"></small>
+          </div>
+        </div>
+      </div>
+      <div class="text-center">
+        <button
+          class="btn btn-primary btn-xl text-uppercase"
+          id="submitButton"
+          type="submit"
+        >
+          Send Messages
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

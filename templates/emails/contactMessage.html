@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      img {
+        height: 12rem;
+        background-color: transparent;
+        margin: 0px 15px;
+        display: block;
+        transform: rotate(19deg);
+      }
+      hr {
+        color: #ffe37b;
+        background-color: #23232399;
+        border: double;
+      }
+      .email,a {
+        color: black !important;
+        text-decoration: none !important;
+      }
+      .name {
+        text-transform: capitalize;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="https://i.ibb.co/DMRq01D/nav-logo.png" alt="Ped Detector logo" />
+
+    <hr />
+    <br />
+    <b> Respected Team, </b>
+    <br />
+    <div>
+      <p>{{msg}}</p>
+    </div>
+    <br />
+    <div>
+      <i> Regards, </i>
+      <br />
+      <b class="name"> {{name}} </b>
+      <br />
+      <b class="email"> {{email}} </b>
+      <br />
+      <b> {{phone}} </b>
+    </div>
+  </body>
+</html>

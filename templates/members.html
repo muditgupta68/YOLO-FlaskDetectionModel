@@ -1,0 +1,41 @@
+{% extends "dashboard.html" %} {% block body %}
+<div class="container">
+  <h1 class="mb-5">All Members</h1>
+  <div class="m-auto mt-4 table-responsive">
+    <!-- table structure -->
+    <table class="table table-hover table-dark p-2 table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">S.No</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Active</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in allUsers %} {% if user.active %}
+        <tr class="table-success">
+          <th scope="row">{{loop.index}}</th>
+          <td>{{user.userName[0]|upper}}{{user.userName[1:]}}</td>
+          <td>{{user.userEmail}}</td>
+          <th class="active_td">{{user.active}}</th>
+          <td>{{user.date}}</td>
+        </tr>
+
+        {% else %}
+        <tr class="table-danger">
+          <th scope="row">{{loop.index}}</th>
+          <td>{{user.userName[0]|upper}}{{user.userName[1:]}}</td>
+          <td>{{user.userEmail}}</td>
+          <th class="inactive_td">{{user.active}}</th>
+          <td>{{user.date}}</td>
+        </tr>
+
+        {% endif %} {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
