@@ -1,105 +1,110 @@
-import pandas as pd
-from pandas.io.json import json_normalize
-import csv
 import os
-import base64
-import sys
-import json
-import pickle
 import cv2
 import numpy as np
+
+INPUT_WIDTH = 640
+INPUT_HEIGHT = 640
+SCORE_THRESHOLD = 0.5
+NMS_THRESHOLD = 0.45
+CONFIDENCE_THRESHOLD = 0.45
+ 
+# Text parameters.
+FONT_FACE = cv2.FONT_HERSHEY_SIMPLEX
+FONT_SCALE = 0.7
+THICKNESS = 1
+ 
+# Colors.
+BLACK  = (0,0,0)
+BLUE   = (255,178,50)
+YELLOW = (0,255,255)
+
+def draw_label(im, label, x, y):
+    # Get text size.
+    text_size = cv2.getTextSize(label, FONT_FACE, FONT_SCALE, THICKNESS)
+    dim, baseline = text_size[0], text_size[1]
+    # Use text size to create a BLACK rectangle.
+    cv2.rectangle(im, (x,y), (x + dim[0], y + dim[1] + baseline), (0,0,0), cv2.FILLED);
+    # Display text inside the rectangle.
+    cv2.putText(im, label, (x, y + dim[1]), FONT_FACE, FONT_SCALE, YELLOW, THICKNESS, cv2.LINE_AA)
+
+def pre_process(input_image, net):
+      # Create a 4D blob from a frame.
+      blob = cv2.dnn.blobFromImage(input_image, 1/255,  (INPUT_WIDTH, INPUT_HEIGHT), [0,0,0], 1, crop=False)
+ 
+      # Sets the input to the network.
+      net.setInput(blob)
+ 
+      # Run the forward pass to get output of the output layers.
+      outputs = net.forward(net.getUnconnectedOutLayersNames())
+      return outputs
+
+def post_process(input_image, outputs,classes):
+      # Lists to hold respective values while unwrapping.
+        class_ids = []
+        confidences = []
+        boxes = []
+        # Rows.
+        rows = outputs[0].shape[1]
+        image_height, image_width = input_image.shape[:2]
+        # Resizing factor.
+        x_factor = image_width / INPUT_WIDTH
+        y_factor =  image_height / INPUT_HEIGHT
+        # Iterate through detections.
+        for r in range(rows):
+            row = outputs[0][0][r]
+            confidence = row[4]
+            # Discard bad detections and continue.
+            if confidence >= CONFIDENCE_THRESHOLD:
+                  classes_scores = row[5:]
+                  # Get the index of max class score.
+                  class_id = np.argmax(classes_scores)
+                  #  Continue if the class score is above threshold.
+                  if (classes_scores[class_id] > SCORE_THRESHOLD):
+                        confidences.append(confidence)
+                        class_ids.append(class_id)
+                        cx, cy, w, h = row[0], row[1], row[2], row[3]
+                        left = int((cx - w/2) * x_factor)
+                        top = int((cy - h/2) * y_factor)
+                        width = int(w * x_factor)
+                        height = int(h * y_factor)
+                        box = np.array([left, top, width, height])
+                        boxes.append(box)
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
+        for i in indices:
+            box = boxes[i]
+            left = box[0]
+            top = box[1]
+            width = box[2]
+            height = box[3]             
+            # Draw bounding box.             
+            cv2.rectangle(input_image, (left, top), (left + width, top + height), BLUE, 3*THICKNESS)
+            # Class label.                      
+            label = "{}:{:.2f}".format(classes[class_ids[i]], confidences[i])             
+            # Draw label.             
+            draw_label(input_image, label, left, top)
+        return input_image
+        
 
 def detect_object(uploaded_image_path,UPLOAD_FOLDER):
     # Loading image
     if uploaded_image_path is None:
         return "none"
     
-    img = cv2.imread(uploaded_image_path)
- 
-    # Load Yolo
-    # yolo_weight = "./detections/yolov3.weights"
-    yolo_weight = "./detections/yolov3-tiny.weights"
-    # yolo_config = "./detections/data/cfg/yolov3.cfg"
-    yolo_config = "./detections/data/cfg/yolov3-tiny.cfg"
+    frame = cv2.imread(uploaded_image_path)    
+    net = cv2.dnn.readNet("C:/Users/mudit/OneDrive/Desktop/minorProject/detections/yolov5n.onnx")
+    # net = cv2.dnn.readNetFromONNX("/home/muditgupta68/mysite/detections/yolov5n.onnx")
     coco_labels = "./detections/data/coco.names"
-    net = cv2.dnn.readNet(yolo_weight,yolo_config)
     classes = []
     with open(coco_labels, "r") as f:
         classes = [line.strip() for line in f.readlines()]
     
-    # Defining desired shape
-    fWidth = 320
-    fHeight = 320
-    
-    # Resize image in lib openCv
-    img = cv2.resize(img, (fWidth, fHeight))
-    
-    height, width, channels = img.shape
-    
-    # Convert image to Blob
-    blob = cv2.dnn.blobFromImage(img, 1 / 255, (fWidth, fHeight), (0, 0, 0), True, crop=False)
-    # Set input for yolo object detection
-    net.setInput(blob)
-    
-    # Find names of all layers
-    layer_names = net.getLayerNames()
-    # print(layer_names)
-    
-    output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
-    # print(output_layers)
-    
-    # Send blob data to forward pass
-    outs = net.forward(output_layers)
-    # print(outs[0].shape)
-    # print(outs[1].shape)
-    # print(outs[2].shape)
-    
-    colors = np.random.uniform(0, 255, size=(len(classes), 3))
-    
-    # Extract information on the screen
-    class_ids = []
-    confidences = []
-    boxes = []
-    
-    for out in outs:
-        for detection in out:
-            # Extract score value
-            scores = detection[5:]
-            # Object id
-            class_id = np.argmax(scores)
-            # Confidence score for each object ID
-            confidence = scores[class_id]
-            # if confidence > 0.5 and class_id == 0:
-            if confidence > 0.5:
-                # Extract values to draw bounding box
-                center_x = int(detection[0] * width)
-                center_y = int(detection[1] * height)
-                w = int(detection[2] * width)
-                h = int(detection[3] * height)
-                # Rectangle coordinates
-                x = int(center_x - w / 2)
-                y = int(center_y - h / 2)
-                boxes.append([x, y, w, h])
-                confidences.append(float(confidence))
-                class_ids.append(class_id)
-                
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-    
-    font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-    
-    for i in range(len(boxes)):
-        if i in indexes:
-            x, y, w, h = boxes[i]
-            label = str(classes[class_ids[i]])
-            # label = str(classes[0])
-            confidence_label = int(confidences[i] * 100)
-            color = colors[i]
-            cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(img, f'{label, confidence_label}', (x - 25, y + 75), font, 1, color, 2)
-    
-    # Write output image (object detection output)
+    detections = pre_process(frame, net)
+    img = post_process(frame.copy(), detections,classes)
+      
+    t, _ = net.getPerfProfile()
+    label = 'Inference time: %.2f ms' % (t * 1000.0 /  cv2.getTickFrequency())
+    print(label)
+    cv2.putText(img, label, (20, 40), FONT_FACE, FONT_SCALE,  (0, 0, 255), THICKNESS, cv2.LINE_AA)
     output_image_path = os.path.join(UPLOAD_FOLDER, 'output_image.jpg')
     cv2.imwrite(output_image_path, img)
-    
-    # return output_image_path
     return output_image_path

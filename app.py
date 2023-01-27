@@ -208,27 +208,28 @@ def detection(current_user):
 @token_required
 def playground(current_user):
     userData = session.get("current_user")
-    uploaded_image_path = session.get('uploaded_img_file_path', None)
-    output_image_path = detect_object(uploaded_image_path,UPLOAD_FOLDER)
-    # print(output_image_path)
-    if output_image_path=='none':
-        return render_template('prediction.html',userData=userData,output=False)
-    
-    return render_template('prediction.html',userData=userData,output_image_path=output_image_path,output=True)
+    output = session.get("output")
+    return render_template('prediction.html',userData=userData,output=output)
 
 @app.route('/uploadImg',  methods=("POST", "GET"))
-@token_required
-def uploadFile(current_user):
+def uploadFile():
     userData = session.get("current_user")
     if request.method == 'POST':
         uploaded_img = request.files['uploaded-file']
-        # img_filename = secure_filename(uploaded_img.filename)
-        save_img_filename = "input_image.jpg"
-        uploadedImgPath = os.path.join(app.config['UPLOAD_FOLDER'], save_img_filename)
-        uploaded_img.save(uploadedImgPath)
-        session['uploaded_img_file_path'] = uploadedImgPath
-        return render_template('dashPredict.html',userData=userData)
-    return render_template('dashPredict.html',userData=userData)
+        uploadedImgPath = None
+        
+        if uploaded_img is not None:
+            save_img_filename = "input_image.jpg"
+            uploadedImgPath = os.path.join(app.config['UPLOAD_FOLDER'], save_img_filename)
+            uploaded_img.save(uploadedImgPath)
+        
+        output_image_path = detect_object(uploadedImgPath,UPLOAD_FOLDER)
+        if output_image_path=='none':
+            session["output"] = False
+            return redirect(url_for("detection"))
+        else:
+            session["output"] = True
+            return redirect(url_for("detection"))
 
 def getAllMembers():
     users = User.query.all()
